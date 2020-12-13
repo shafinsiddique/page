@@ -38,6 +38,7 @@ func (scanner *BasicScanner) GetTokens() []*Token{
 			*curIndex += 1
 		}
 	}
+
 	return tokens
 }
 

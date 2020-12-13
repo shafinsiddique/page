@@ -1,5 +1,5 @@
 package main
 
-type Expression struct {
+type IExpression struct {
 
 }
