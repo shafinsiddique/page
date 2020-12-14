@@ -1,5 +1,5 @@
 package main
 
 type IParser interface {
-	Parse(tokens []Token)AST
+	Parse(tokens []Token)*AST
 }

@@ -1,5 +1,5 @@
 package main
 
-type IExpression struct {
-
+type IExpression interface {
+	Evaluate()
 }
