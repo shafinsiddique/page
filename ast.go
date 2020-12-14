@@ -1,12 +1,14 @@
 package main
 
-import "fmt"
-
 type AST struct {
 	expressions []IExpression
 }
 
-func (ast AST) ToString() string {
+func NewBasicAST () IAST {
+	return &AST{}
+}
+
+func (ast *AST) ToString() string {
 	str := ""
 	for _, expr := range ast.expressions {
 		str += expr.ToString() + "\n"
@@ -15,12 +17,11 @@ func (ast AST) ToString() string {
 	return str
 }
 
-func (ast AST) Evaluate() {
-	for _, expr := range ast.expressions {
-		fmt.Println(expr.Evaluate())
-	}
+
+func (ast *AST) GetExpressions()[]IExpression {
+	return ast.expressions
 }
 
-func (ast AST) AddExpression(expr IExpression) {
+func (ast *AST) AddExpression(expr IExpression) {
 	ast.expressions = append(ast.expressions, expr)
 }
