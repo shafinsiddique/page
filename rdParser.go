@@ -28,7 +28,8 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 	var node IExpression
 	if tokens[index].tokenType == LEFT_PAREN {
 		if nextToken := peek(tokens, curIndex) ; nextToken != nil {
-			if nextToken.tokenType == PLUS || nextToken.tokenType == MINUS {
+			if nextToken.tokenType == PLUS || nextToken.tokenType == MINUS ||
+				nextToken.tokenType == DIVIDE || nextToken.tokenType == TIMES{
 				node = parseMathOperator(tokens, curIndex)
 			}
 		}

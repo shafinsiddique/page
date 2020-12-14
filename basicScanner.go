@@ -34,6 +34,10 @@ func (scanner BasicScanner) GetTokens(strScan string) []*Token{
 			tokens = append(tokens, &Token{tokenType: PLUS, literal: "+"})
 		} else if curChar == "-" {
 			tokens = append(tokens, &Token{tokenType: MINUS, literal:"-"})
+		} else if curChar == "*" {
+			tokens = append(tokens, &Token{tokenType: TIMES, literal:"*"})
+		} else if curChar == "/" {
+			tokens = append(tokens, &Token{tokenType: DIVIDE, literal:"/"})
 		} else if isDigit(curChar) {
 			tokens = append(tokens, scanNumberToken(&str, curIndex))
 			incremented = true

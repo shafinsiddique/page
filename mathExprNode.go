@@ -12,9 +12,14 @@ func (node MathExpressionNode) Evaluate() interface{} {
 		value := node.children[index].Evaluate().(int)
 		if node.operator == PLUS {
 			cur_value += value
-		} else {
+		} else if node.operator == MINUS {
 			cur_value -= value
+		} else if node.operator == DIVIDE {
+			cur_value /= value
+		} else {
+			cur_value *= value
 		}
+
 		index += 1
 	}
 
