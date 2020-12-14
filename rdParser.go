@@ -26,14 +26,14 @@ func peek(tokens[]*Token, index *int)  *Token {
 func parseToken(tokens []*Token, curIndex *int) IExpression {
 	index := *curIndex
 	var node IExpression
-	if tokens[index].tokenType == LEFT_PAREN {
+	if tokens[index].TokenType == LEFT_PAREN {
 		if nextToken := peek(tokens, curIndex) ; nextToken != nil {
-			if nextToken.tokenType == PLUS || nextToken.tokenType == MINUS ||
-				nextToken.tokenType == DIVIDE || nextToken.tokenType == TIMES{
+			if nextToken.TokenType == PLUS || nextToken.TokenType == MINUS ||
+				nextToken.TokenType == DIVIDE || nextToken.TokenType == TIMES{
 				node = parseMathOperator(tokens, curIndex)
 			}
 		}
-	} else if tokens[index].tokenType == NUMBER {
+	} else if tokens[index].TokenType == NUMBER {
 		node = parseNumber(tokens, curIndex)
 	}
 
@@ -41,16 +41,16 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 }
 
 func parseNumber(tokens []*Token, curIndex *int) IExpression {
-	node := NumberExpressionNode{number: tokens[*curIndex].literal}
+	node := NumberExpressionNode{number: tokens[*curIndex].Literal}
 	*curIndex += 1
 	return node
 }
 
 func parseMathOperator(tokens[]*Token, curIndex *int) IExpression {
-	operator := tokens[*curIndex].tokenType
+	operator := tokens[*curIndex].TokenType
 	var children []IExpression
 	*curIndex += 1
-	for *curIndex < len(tokens) && tokens[*curIndex].tokenType != RIGHT_PAREN {
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
 		children = append(children, parseToken(tokens, curIndex))
 	}
 	*curIndex += 1 // fix later.

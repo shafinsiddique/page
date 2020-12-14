@@ -26,22 +26,19 @@ func (scanner BasicScanner) GetTokens(strScan string) []*Token{
 	for *curIndex < len(str) {
 		index := *curIndex
 		incremented := false
-		if curChar := string(str[index]) ; curChar == "(" {
-			tokens = append(tokens, &Token{tokenType: LEFT_PAREN, literal: "("})
-		} else if curChar == ")" {
-			tokens = append(tokens, &Token{tokenType: RIGHT_PAREN, literal: ")"})
-		} else if curChar == "+" {
-			tokens = append(tokens, &Token{tokenType: PLUS, literal: "+"})
-		} else if curChar == "-" {
-			tokens = append(tokens, &Token{tokenType: MINUS, literal:"-"})
-		} else if curChar == "*" {
-			tokens = append(tokens, &Token{tokenType: TIMES, literal:"*"})
-		} else if curChar == "/" {
-			tokens = append(tokens, &Token{tokenType: DIVIDE, literal:"/"})
+		curChar := string(str[index])
+		var token *Token
+		if val,ok := SINGLE_CHAR_TOKENS[curChar] ; ok {
+			token = &Token{TokenType: val.TokenType}
 		} else if isDigit(curChar) {
-			tokens = append(tokens, scanNumberToken(&str, curIndex))
+			token = scanNumberToken(&str, curIndex)
 			incremented = true
 		}
+
+		if token != nil {
+			tokens = append(tokens, token)
+		}
+
 		if !incremented {
 			*curIndex += 1
 		}
@@ -62,6 +59,6 @@ func scanNumberToken(str *string, index *int) *Token{
 		}
 	}
 
-	return &Token{tokenType: NUMBER, literal: num}
+	return &Token{TokenType: NUMBER, Literal: num}
 }
 
