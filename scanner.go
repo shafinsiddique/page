@@ -1,5 +1,5 @@
 package main
 
 type IScanner interface {
-	GetTokens() []Token
+	GetTokens(strToScan string) []*Token
 }

@@ -20,3 +20,7 @@ func (ast AST) Evaluate() {
 		fmt.Println(expr.Evaluate())
 	}
 }
+
+func (ast AST) AddExpression(expr IExpression) {
+	ast.expressions = append(ast.expressions, expr)
+}

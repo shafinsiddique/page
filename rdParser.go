@@ -1,19 +1,17 @@
 package main
 
 type RDParser struct {
-	ast *AST
 }
 
-func (p *RDParser) Parse(tokens []*Token) *AST {
-	if p.ast == nil {
-		p.ast = &AST{}
-	}
+func NewRDParser() IParser {
+	return RDParser{}
+}
+
+func (p RDParser) Parse(ast IAST, tokens []*Token) {
 	index := 0
 	for index < len(tokens) {
-		p.ast.expressions = append(p.ast.expressions, parseToken(tokens, &index))
+		ast.AddExpression(parseToken(tokens, &index))
 	}
-
-	return p.ast
 }
 
 func peek(tokens[]*Token, index *int)  *Token {

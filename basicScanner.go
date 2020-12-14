@@ -5,8 +5,6 @@ import (
 )
 
 type BasicScanner struct {
-	strScan string
-	curIndex int
 }
 
 func isDigit(str string) bool {
@@ -16,10 +14,15 @@ func isDigit(str string) bool {
 	return false
 }
 
-func (scanner *BasicScanner) GetTokens() []*Token{
+func NewBasicScanner() IScanner {
+	return BasicScanner{}
+}
+
+func (scanner BasicScanner) GetTokens(strScan string) []*Token{
 	var tokens []*Token
-	str := scanner.strScan
-	curIndex := &scanner.curIndex
+	str := strScan
+	starting := 0
+	curIndex := &starting
 	for *curIndex < len(str) {
 		index := *curIndex
 		incremented := false
