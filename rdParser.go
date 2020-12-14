@@ -12,15 +12,17 @@ func (p *RDParser) Parse(tokens []*Token) *AST {
 	for index < len(tokens) {
 		p.ast.expressions = append(p.ast.expressions, parseToken(tokens, &index))
 	}
+
 	return p.ast
 }
 
 func peek(tokens[]*Token, index *int)  *Token {
+	var token *Token
 	if *index + 1 < len(tokens){
-		return tokens[*index+1]
+		token = tokens[*index+1]
 	}
 	*index += 1
-	return nil
+	return token
 }
 
 func parseToken(tokens []*Token, curIndex *int) IExpression {
@@ -52,7 +54,6 @@ func parseMathOperator(tokens[]*Token, curIndex *int) IExpression {
 	for *curIndex < len(tokens) && tokens[*curIndex].tokenType != RIGHT_PAREN {
 		children = append(children, parseToken(tokens, curIndex))
 	}
-
 	*curIndex += 1 // fix later.
 	return &MathExpressionNode{operator: operator, children: children}
 

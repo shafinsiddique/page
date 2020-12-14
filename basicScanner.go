@@ -15,6 +15,7 @@ func isDigit(str string) bool {
 	}
 	return false
 }
+
 func (scanner *BasicScanner) GetTokens() []*Token{
 	var tokens []*Token
 	str := scanner.strScan
@@ -53,6 +54,7 @@ func scanNumberToken(str *string, index *int) *Token{
 			break
 		}
 	}
+
 	return &Token{tokenType: NUMBER, literal: num}
 }
 

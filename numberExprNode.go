@@ -7,3 +7,7 @@ type NumberExpressionNode struct {
 func (node NumberExpressionNode) Evaluate() {
 
 }
+
+func (node NumberExpressionNode) ToString() string {
+	return node.number
+}
