@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type AST struct {
 	expressions []IExpression
 }
@@ -11,4 +13,10 @@ func (ast AST) ToString() string {
 	}
 
 	return str
+}
+
+func (ast AST) Evaluate() {
+	for _, expr := range ast.expressions {
+		fmt.Println(expr.Evaluate())
+	}
 }

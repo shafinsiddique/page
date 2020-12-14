@@ -1,6 +1,6 @@
 package main
 
 type IExpression interface {
-	Evaluate()
+	Evaluate() interface{}
 	ToString() string
 }

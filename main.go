@@ -1,13 +1,12 @@
 package main
 
-import "fmt"
-
 func main() {
-	scanner := &BasicScanner{strScan: " (- 2 3) "}
+	scanner := &BasicScanner{strScan: "(+2 (+ 1 1))"}
 	tokens := scanner.GetTokens()
 	parser := &RDParser{}
 	ast := parser.Parse(tokens)
-	fmt.Println(ast.ToString())
+	ast.Evaluate()
+	//fmt.Println(ast.ToString())
 	//parser.Parse(tokens)
 
 

@@ -5,8 +5,20 @@ type MathExpressionNode struct {
 	children []IExpression
 }
 
-func (node MathExpressionNode) Evaluate() {
+func (node MathExpressionNode) Evaluate() interface{} {
+	cur_value := node.children[0].Evaluate().(int)
+	index := 1
+	for index < len(node.children) {
+		value := node.children[index].Evaluate().(int)
+		if node.operator == PLUS {
+			cur_value += value
+		} else {
+			cur_value -= value
+		}
+		index += 1
+	}
 
+	return cur_value
 }
 
 func (node MathExpressionNode) ToString() string {
