@@ -19,3 +19,39 @@ func (node InequalityExprNode) Evaluate()interface{} {
 func (node InequalityExprNode) GetType()ExpressionType {
 	return INEQUALITY_EXPR
 }
+
+type AndOrExprNode struct {
+	operator TokenType
+	elements []bool
+}
+
+func hasFalse(elements []bool)bool {
+
+	for _, v := range elements {
+		if !v {
+			return true
+		}
+	}
+	return false
+}
+
+func hasTrue(elements []bool)bool {
+	for _, v := range elements {
+		if v {
+			return true
+		}
+	}
+	return false
+}
+
+func(node AndOrExprNode) Evaluate()interface{} {
+	if node.operator == AND {
+		return !hasFalse(node.elements)
+	}
+	return hasTrue(node.elements)
+}
+
+func (node AndOrExprNode) GetType()ExpressionType {
+	return AND_OR_EXPR
+}
+

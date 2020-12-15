@@ -43,6 +43,8 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 				node = parseFirst(tokens, curIndex)
 			} else if nextToken.TokenType == GREATER_THAN || nextToken.TokenType == LESS_THAN || nextToken.TokenType == EQUAL {
 				node = parseInequality(tokens ,curIndex)
+			} else if nextToken.TokenType == AND || nextToken.TokenType == OR {
+				node = parseAndOr(tokens, curIndex)
 			}
 		} else {
 			log.Fatal(UNCLOSED_PARENTHESIS)
@@ -56,6 +58,40 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 	return node
 }
 
+func getAllArguments(tokens[]*Token, curIndex *int)[]IExpression {
+	elements := []IExpression{}
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN{
+		elements = append(elements, parseToken(tokens, curIndex))
+	}
+	if *curIndex == len(tokens) {
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	return elements
+
+}
+func parseAndOr(tokens []*Token, curIndex *int)IExpression {
+	curToken := tokens[*curIndex]
+	*curIndex += 1
+	elements := getAllArguments(tokens, curIndex)
+	if len(elements) < 2 {
+		log.Fatal(TOO_FEW_ARGUMENTS)
+	}
+
+	evaluated := []bool{}
+	for _, expr := range elements {
+		val := expr.Evaluate()
+
+		if conv, ok := val.(bool) ; !ok {
+			log.Fatal(TypeMismatchError("bool", val))
+		}  else {
+			evaluated = append(evaluated, conv)
+		}
+	}
+	*curIndex += 1
+	return AndOrExprNode{operator: curToken.TokenType, elements: evaluated}
+
+}
 func checkIfCorrectArguments(expected int, actual int) {
 	if actual < expected {
 		log.Fatal(TOO_FEW_ARGUMENTS)
