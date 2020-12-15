@@ -41,6 +41,8 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 				node = parseCons(tokens, curIndex)
 			} else if nextToken.TokenType == FIRST {
 				node = parseFirst(tokens, curIndex)
+			} else if nextToken.TokenType == GREATER_THAN || nextToken.TokenType == LESS_THAN || nextToken.TokenType == EQUAL {
+				node = parseInequality(tokens ,curIndex)
 			}
 		} else {
 			log.Fatal(UNCLOSED_PARENTHESIS)
@@ -52,6 +54,45 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 	}
 
 	return node
+}
+
+func checkIfCorrectArguments(expected int, actual int) {
+	if actual < expected {
+		log.Fatal(TOO_FEW_ARGUMENTS)
+	} else if actual > expected {
+		log.Fatal(TOO_MANY_ARGUMENTS)
+	}
+}
+
+func parseInequality(tokens []*Token, curIndex *int)IExpression {
+	var elements []IExpression
+	curToken := tokens[*curIndex]
+	*curIndex += 1
+
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		elements = append(elements, parseToken(tokens, curIndex))
+	}
+
+	if *curIndex == len(tokens) {
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+	checkIfCorrectArguments(2, len(elements))
+	// if it comes here, it means it has 2.
+	element1 := elements[0].Evaluate()
+	element2 := elements[1].Evaluate()
+
+	val, ok := element1.(int)
+	val2, ok2 := element2.(int)
+
+	if !ok {
+		log.Fatal(TypeMismatchErrorNumber(val))
+	}
+
+	if !ok2 {
+		log.Fatal(TypeMismatchErrorNumber(val2))
+	}
+	*curIndex += 1
+	return InequalityExprNode{element1: val, element2: val2, operator: curToken.TokenType}
 }
 
 func parseFirst(tokens []*Token, curIndex *int) IExpression {

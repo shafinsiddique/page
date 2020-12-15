@@ -9,8 +9,8 @@ import (
 )
 
 func startRepl(in io.Reader, out io.Writer) {
-	fmt.Println("Welcome to Page - A Minimal Lisp Interpreter Written in Go. \nFind more information on our " +
-		"github repository.")
+	fmt.Println("Welcome to Page - A Minimal Lisp Interpreter Written in Go. \nVerson : 1.0\n" +
+		"Developed By: @sl2j")
 
 	tokenizer := NewBasicScanner()
 	ast := NewBasicAST()

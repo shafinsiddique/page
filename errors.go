@@ -17,7 +17,6 @@ var FIRST_ON_EMPTY = errors.New("Runtime Error : called first on empty list")
 func TypeMismatchErrorNumber(actual interface{}) error {
 	valType := reflect.TypeOf(actual).String()
 	return errors.New("Type Error : Expected number got " + valType + " instead")
-
 }
 
 func TypeMismatcErrorList(actual ExpressionType) error {

@@ -41,6 +41,12 @@ func getStringOfValue(value interface{}) string {
 			}
 		}
 		str += ")"
+	case bool:
+		if val := value.(bool) ; val {
+			str = "true"
+		} else {
+			str = "false"
+		}
 	}
 
 	return str
