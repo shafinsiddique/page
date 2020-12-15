@@ -1,7 +1,7 @@
 package main
 
 type IAST interface {
-	ToString() string
+	//ToString() string
 	AddExpression(expr IExpression)
 	GetExpressions()[]IExpression
 }

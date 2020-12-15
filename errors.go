@@ -5,9 +5,11 @@ import (
 	"reflect"
 )
 
-var UNCLOSED_PARENTHESIS = errors.New("Syntax Error : Unclosed Parenthesis")
+var UNCLOSED_PARENTHESIS = errors.New("Syntax Error : unclosed parenthesis")
 
-var TOO_FEW_ARGUMENTS = errors.New("too few arguments")
+var TOO_FEW_ARGUMENTS = errors.New("Parsing Error : too few arguments")
+
+var UNCLOSED_STRING = errors.New("Syntax Error : unclosed string")
 
 func TypeMismatchErrorNumber(actual interface{}) error {
 	valType := reflect.TypeOf(actual).String()

@@ -30,11 +30,7 @@ func (node MathExpressionNode) Evaluate() interface{} {
 	return value
 }
 
-func (node MathExpressionNode) ToString() string {
-	str := string(node.operator) + " "
 
-	for _, expr := range node.children {
-		str += expr.ToString() + " "
-	}
-	return str
+func (node MathExpressionNode) GetType()ExpressionType {
+	return MATH_EXPR
 }

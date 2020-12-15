@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strconv"
 )
 
@@ -33,6 +34,9 @@ func (scanner BasicScanner) GetTokens(strScan string) []*Token{
 		} else if isDigit(curChar) {
 			token = scanNumberToken(&str, curIndex)
 			incremented = true
+		} else if curChar == "\"" {
+			token = scanStringToken(&str, curIndex)
+			incremented = true
 		}
 
 		if token != nil {
@@ -60,5 +64,25 @@ func scanNumberToken(str *string, index *int) *Token{
 	}
 
 	return &Token{TokenType: NUMBER, Literal: num}
+}
+
+func scanStringToken(str *string, index *int) *Token {
+	strVal := ""
+	*index += 1 // we don't need to count the first quote.
+	for *index < len(*str) {
+		if curChar := string((*str)[*index]) ; curChar != "\"" {
+			strVal += curChar
+		} else {
+			break
+		}
+		*index += 1
+	}
+
+	if *index == len(*str) {
+		log.Fatal(UNCLOSED_STRING)
+	}
+
+	*index += 1
+	return &Token{TokenType: STRING, Literal: strVal}
 }
 

@@ -8,16 +8,6 @@ func NewBasicAST () IAST {
 	return &AST{}
 }
 
-func (ast *AST) ToString() string {
-	str := ""
-	for _, expr := range ast.expressions {
-		str += expr.ToString() + "\n"
-	}
-
-	return str
-}
-
-
 func (ast *AST) GetExpressions()[]IExpression {
 	return ast.expressions
 }

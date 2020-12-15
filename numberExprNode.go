@@ -11,6 +11,6 @@ func (node NumberExpressionNode) Evaluate() interface{} {
 	return v
 }
 
-func (node NumberExpressionNode) ToString() string {
-	return node.number
+func (node NumberExpressionNode) GetType() ExpressionType {
+	return NUMBER_EXPR
 }

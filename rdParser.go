@@ -39,8 +39,16 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 		}
 	} else if tokens[index].TokenType == NUMBER {
 		node = parseNumber(tokens, curIndex)
+	} else if tokens[index].TokenType == STRING {
+		node = parseString(tokens, curIndex)
 	}
 
+	return node
+}
+
+func parseString(tokens []*Token, curIndex *int) IExpression {
+	node :=  StringExprNode{stringLiteral: tokens[*curIndex].Literal}
+	*curIndex += 1
 	return node
 }
 
