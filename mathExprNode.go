@@ -8,10 +8,12 @@ type MathExpressionNode struct {
 }
 
 func (node MathExpressionNode) Evaluate() interface{} {
-	index := 0
-	value := 0
-
-	for index < len(node.children) {
+	index := 1
+	var output int
+	if value, ok := node.children[0].Evaluate().(int); ! ok {
+		log.Fatal(TypeMismatchErrorNumber(value))
+	} else {
+		for index < len(node.children) {
 		if val, ok := node.children[index].Evaluate().(int); ! ok {
 			log.Fatal(TypeMismatchErrorNumber(val))
 		} else if node.operator == PLUS {
@@ -23,11 +25,11 @@ func (node MathExpressionNode) Evaluate() interface{} {
 		} else {
 			value *= val
 		}
-
 		index += 1
 	}
-
-	return value
+	output = value
+	}
+	return output
 }
 
 

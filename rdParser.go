@@ -41,8 +41,26 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 		node = parseNumber(tokens, curIndex)
 	} else if tokens[index].TokenType == STRING {
 		node = parseString(tokens, curIndex)
+	} else if tokens[index].TokenType == LIST {
+		node = parseList(tokens, curIndex)
 	}
 
+	return node
+}
+
+func parseList(tokens []*Token, curIndex *int) IExpression {
+	var elements []IExpression
+	*curIndex += 1
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		elements = append(elements, parseToken(tokens, curIndex))
+	}
+	if *curIndex == len(tokens) {
+		// no right paren found.
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	*curIndex += 1 // skipping the right paren, since it exists.
+	node := ListExpressionNode{elements: elements}
 	return node
 }
 
