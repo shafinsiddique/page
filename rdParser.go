@@ -62,6 +62,10 @@ func parseMathOperator(tokens[]*Token, curIndex *int) IExpression {
 		log.Fatal(UNCLOSED_PARENTHESIS)
 	}
 
+	if len(children) < 2 {
+		log.Fatal(TOO_FEW_ARGUMENTS)
+	}
+
 	*curIndex += 1
 	return &MathExpressionNode{operator: operator, children: children}
 

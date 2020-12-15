@@ -1,29 +1,33 @@
 package main
 
+import "log"
+
 type MathExpressionNode struct {
 	operator TokenType
 	children []IExpression
 }
 
 func (node MathExpressionNode) Evaluate() interface{} {
-	cur_value := node.children[0].Evaluate().(int)
-	index := 1
+	index := 0
+	value := 0
+
 	for index < len(node.children) {
-		value := node.children[index].Evaluate().(int)
-		if node.operator == PLUS {
-			cur_value += value
+		if val, ok := node.children[index].Evaluate().(int); ! ok {
+			log.Fatal(TypeMismatchErrorNumber(val))
+		} else if node.operator == PLUS {
+			value += val
 		} else if node.operator == MINUS {
-			cur_value -= value
+			value -= val
 		} else if node.operator == DIVIDE {
-			cur_value /= value
+			value /= val
 		} else {
-			cur_value *= value
+			value *= val
 		}
 
 		index += 1
 	}
 
-	return cur_value
+	return value
 }
 
 func (node MathExpressionNode) ToString() string {
@@ -34,8 +38,3 @@ func (node MathExpressionNode) ToString() string {
 	}
 	return str
 }
-
-
-
-
-
