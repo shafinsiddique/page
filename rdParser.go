@@ -39,6 +39,8 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 				node = parseList(tokens, curIndex)
 			} else if nextToken.TokenType == CONS {
 				node = parseCons(tokens, curIndex)
+			} else if nextToken.TokenType == FIRST {
+				node = parseFirst(tokens, curIndex)
 			}
 		} else {
 			log.Fatal(UNCLOSED_PARENTHESIS)
@@ -52,6 +54,32 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 	return node
 }
 
+func parseFirst(tokens []*Token, curIndex *int) IExpression {
+	var elements []IExpression
+	*curIndex += 1
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		elements = append(elements, parseToken(tokens, curIndex))
+	}
+
+	if *curIndex == len(tokens) {
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	if len(elements) < 1 {
+		log.Fatal(TOO_FEW_ARGUMENTS)
+	} else if len(elements) > 1 {
+		log.Fatal(TOO_MANY_ARGUMENTS)
+	}
+
+	if elements[0].GetType() != LIST_EXPR {
+		log.Fatal(TypeMismatcErrorList(elements[0].GetType()))
+	}
+
+	*curIndex += 1
+
+	return FirstExpressionNode{list:elements[0].Evaluate().([]interface{})}
+
+}
 func parseCons(tokens []*Token, curIndex *int) IExpression {
 	var elements []IExpression
 	*curIndex += 1
