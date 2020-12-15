@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"os"
 )
 
@@ -33,5 +34,6 @@ func startRepl(in io.Reader, out io.Writer) {
 }
 
 func main() {
+	log.SetFlags(0)
 	startRepl(os.Stdin, os.Stdout)
 }

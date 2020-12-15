@@ -1,5 +1,7 @@
 package main
 
+import "log"
+
 type RDParser struct {
 }
 
@@ -32,6 +34,8 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 				nextToken.TokenType == DIVIDE || nextToken.TokenType == TIMES{
 				node = parseMathOperator(tokens, curIndex)
 			}
+		} else {
+			log.Fatal(UNCLOSED_PARENTHESIS)
 		}
 	} else if tokens[index].TokenType == NUMBER {
 		node = parseNumber(tokens, curIndex)
@@ -53,7 +57,12 @@ func parseMathOperator(tokens[]*Token, curIndex *int) IExpression {
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
 		children = append(children, parseToken(tokens, curIndex))
 	}
-	*curIndex += 1 // fix later.
+	if *curIndex == len(tokens) {
+		// this means we went to the end of the tokens without seeing a closing parenthesis.
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	*curIndex += 1
 	return &MathExpressionNode{operator: operator, children: children}
 
 }
