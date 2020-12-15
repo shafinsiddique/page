@@ -1,6 +1,8 @@
 package main
 
-import "log"
+import (
+	"log"
+)
 
 type RDParser struct {
 }
@@ -16,9 +18,9 @@ func (p RDParser) Parse(ast IAST, tokens []*Token) {
 	}
 }
 
-func peek(tokens[]*Token, index *int)  *Token {
+func peek(tokens []*Token, index *int) *Token {
 	var token *Token
-	if *index + 1 < len(tokens){
+	if *index+1 < len(tokens) {
 		token = tokens[*index+1]
 	}
 	*index += 1
@@ -29,10 +31,14 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 	index := *curIndex
 	var node IExpression
 	if tokens[index].TokenType == LEFT_PAREN {
-		if nextToken := peek(tokens, curIndex) ; nextToken != nil {
+		if nextToken := peek(tokens, curIndex); nextToken != nil {
 			if nextToken.TokenType == PLUS || nextToken.TokenType == MINUS ||
-				nextToken.TokenType == DIVIDE || nextToken.TokenType == TIMES{
+				nextToken.TokenType == DIVIDE || nextToken.TokenType == TIMES {
 				node = parseMathOperator(tokens, curIndex)
+			} else if nextToken.TokenType == LIST {
+				node = parseList(tokens, curIndex)
+			} else if nextToken.TokenType == CONS {
+				node = parseCons(tokens, curIndex)
 			}
 		} else {
 			log.Fatal(UNCLOSED_PARENTHESIS)
@@ -41,13 +47,34 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 		node = parseNumber(tokens, curIndex)
 	} else if tokens[index].TokenType == STRING {
 		node = parseString(tokens, curIndex)
-	} else if tokens[index].TokenType == LIST {
-		node = parseList(tokens, curIndex)
 	}
 
 	return node
 }
 
+func parseCons(tokens []*Token, curIndex *int) IExpression {
+	var elements []IExpression
+	*curIndex += 1
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		elements = append(elements, parseToken(tokens, curIndex))
+	}
+
+	if *curIndex == len(tokens) {
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	if len(elements) < 2 {
+		log.Fatal(TOO_FEW_ARGUMENTS)
+	} else if len(elements) > 2 {
+		log.Fatal(TOO_MANY_ARGUMENTS)
+	}
+
+	if elements[1].GetType() != LIST_EXPR {
+		log.Fatal(TypeMismatcErrorList(elements[1].GetType()))
+	}
+	*curIndex += 1
+	return ConsExpressionNode{element: elements[0].Evaluate(), list:elements[1].Evaluate().([]interface{})}
+}
 func parseList(tokens []*Token, curIndex *int) IExpression {
 	var elements []IExpression
 	*curIndex += 1
@@ -65,7 +92,7 @@ func parseList(tokens []*Token, curIndex *int) IExpression {
 }
 
 func parseString(tokens []*Token, curIndex *int) IExpression {
-	node :=  StringExprNode{stringLiteral: tokens[*curIndex].Literal}
+	node := StringExprNode{stringLiteral: tokens[*curIndex].Literal}
 	*curIndex += 1
 	return node
 }
@@ -76,7 +103,7 @@ func parseNumber(tokens []*Token, curIndex *int) IExpression {
 	return node
 }
 
-func parseMathOperator(tokens[]*Token, curIndex *int) IExpression {
+func parseMathOperator(tokens []*Token, curIndex *int) IExpression {
 	operator := tokens[*curIndex].TokenType
 	var children []IExpression
 	*curIndex += 1

@@ -47,12 +47,6 @@ func getStringOfValue(value interface{}) string {
 }
 
 func evaluateExpr(expression IExpression) {
-	//switch exprType := expression.GetType() ; exprType{
-	//	case STRING_EXPR:
-	//		fmt.Println("'" + expression.Evaluate().(string) + "'")
-	//default:
-	//	fmt.Println(expression.Evaluate())
-	//}
 	fmt.Println(getStringOfValue(expression.Evaluate()))
 }
 
