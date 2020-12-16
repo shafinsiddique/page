@@ -20,6 +20,7 @@ func NewBasicScanner() IScanner {
 	return BasicScanner{}
 }
 
+
 func (scanner BasicScanner) GetTokens(strScan string) []*Token{
 	var tokens []*Token
 	str := strScan
@@ -30,7 +31,11 @@ func (scanner BasicScanner) GetTokens(strScan string) []*Token{
 		incremented := false
 		curChar := string(str[index])
 		var token *Token
-		if val,ok := SINGLE_CHAR_TOKENS[curChar] ; ok {
+		if val, ok := PEEK_MAP[curChar] ; ok && *curIndex + 1 <len(str) && val == string(str[*curIndex+1]) {
+			*curIndex += 2
+			incremented = true
+			token = &Token{TokenType: TWO_CHAR_TOkENS[curChar+val].TokenType}
+		}else if val,ok := SINGLE_CHAR_TOKENS[curChar] ; ok {
 			token = &Token{TokenType: val.TokenType}
 		} else if isDigit(curChar) {
 			token = scanNumberToken(&str, curIndex)

@@ -23,6 +23,10 @@ func (node InequalityExprNode) Evaluate()interface{} {
 		return v1 > v2
 	} else if node.operator == LESS_THAN {
 		return v1 < v2
+	} else if node.operator == LESS_THAN_EQUAL {
+		return v1 <= v2
+	} else if node.operator == GREATER_THAN_EQUAL {
+		return v1 >= v2
 	}
 	return v1 == v2
 }

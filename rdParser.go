@@ -41,7 +41,8 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 				node = parseCons(tokens, curIndex)
 			} else if nextToken.TokenType == FIRST {
 				node = parseFirst(tokens, curIndex)
-			} else if nextToken.TokenType == GREATER_THAN || nextToken.TokenType == LESS_THAN || nextToken.TokenType == EQUAL {
+			} else if nextToken.TokenType == GREATER_THAN || nextToken.TokenType == LESS_THAN ||
+				nextToken.TokenType == EQUAL  || nextToken.TokenType == GREATER_THAN_EQUAL || nextToken.TokenType == LESS_THAN_EQUAL{
 				node = parseInequality(tokens ,curIndex)
 			} else if nextToken.TokenType == AND || nextToken.TokenType == OR {
 				node = parseAndOr(tokens, curIndex)
