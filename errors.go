@@ -14,6 +14,9 @@ var TOO_MANY_ARGUMENTS = errors.New("Parsing Error : too many arguments")
 var UNCLOSED_STRING = errors.New("Syntax Error : unclosed string")
 
 var FIRST_ON_EMPTY = errors.New("Runtime Error : called first on empty list")
+
+var UNEXPECTED_TOKEN = errors.New("Parsing Error : unexpected token")
+
 func TypeMismatchErrorNumber(actual interface{}) error {
 	valType := reflect.TypeOf(actual).String()
 	return errors.New("Type Error : Expected number got " + valType + " instead")

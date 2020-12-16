@@ -53,8 +53,12 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 		node = parseNumber(tokens, curIndex)
 	} else if tokens[index].TokenType == STRING {
 		node = parseString(tokens, curIndex)
+	} else if tokens[index].TokenType == TRUE || tokens[index].TokenType == FALSE {
+		node = BooleanExprNode{operator: tokens[index].TokenType}
+		*curIndex += 1
+	} else {
+		log.Fatal(UNEXPECTED_TOKEN)
 	}
-
 	return node
 }
 
@@ -78,18 +82,8 @@ func parseAndOr(tokens []*Token, curIndex *int)IExpression {
 		log.Fatal(TOO_FEW_ARGUMENTS)
 	}
 
-	evaluated := []bool{}
-	for _, expr := range elements {
-		val := expr.Evaluate()
-
-		if conv, ok := val.(bool) ; !ok {
-			log.Fatal(TypeMismatchError("bool", val))
-		}  else {
-			evaluated = append(evaluated, conv)
-		}
-	}
 	*curIndex += 1
-	return AndOrExprNode{operator: curToken.TokenType, elements: evaluated}
+	return AndOrExprNode{operator: curToken.TokenType, elements: elements}
 
 }
 func checkIfCorrectArguments(expected int, actual int) {
@@ -101,7 +95,7 @@ func checkIfCorrectArguments(expected int, actual int) {
 }
 
 func parseInequality(tokens []*Token, curIndex *int)IExpression {
-	var elements []IExpression
+	elements := []IExpression{}
 	curToken := tokens[*curIndex]
 	*curIndex += 1
 
@@ -114,25 +108,12 @@ func parseInequality(tokens []*Token, curIndex *int)IExpression {
 	}
 	checkIfCorrectArguments(2, len(elements))
 	// if it comes here, it means it has 2.
-	element1 := elements[0].Evaluate()
-	element2 := elements[1].Evaluate()
-
-	val, ok := element1.(int)
-	val2, ok2 := element2.(int)
-
-	if !ok {
-		log.Fatal(TypeMismatchErrorNumber(val))
-	}
-
-	if !ok2 {
-		log.Fatal(TypeMismatchErrorNumber(val2))
-	}
 	*curIndex += 1
-	return InequalityExprNode{element1: val, element2: val2, operator: curToken.TokenType}
+	return InequalityExprNode{element1: elements[0], element2: elements[1], operator: curToken.TokenType}
 }
 
 func parseFirst(tokens []*Token, curIndex *int) IExpression {
-	var elements []IExpression
+	elements := []IExpression{}
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
 		elements = append(elements, parseToken(tokens, curIndex))
@@ -158,7 +139,7 @@ func parseFirst(tokens []*Token, curIndex *int) IExpression {
 
 }
 func parseCons(tokens []*Token, curIndex *int) IExpression {
-	var elements []IExpression
+	elements := []IExpression{}
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
 		elements = append(elements, parseToken(tokens, curIndex))
@@ -181,7 +162,7 @@ func parseCons(tokens []*Token, curIndex *int) IExpression {
 	return ConsExpressionNode{element: elements[0].Evaluate(), list:elements[1].Evaluate().([]interface{})}
 }
 func parseList(tokens []*Token, curIndex *int) IExpression {
-	var elements []IExpression
+	elements := []IExpression{}
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
 		elements = append(elements, parseToken(tokens, curIndex))

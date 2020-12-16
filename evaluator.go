@@ -43,9 +43,9 @@ func getStringOfValue(value interface{}) string {
 		str += ")"
 	case bool:
 		if val := value.(bool) ; val {
-			str = "true"
+			str = "True"
 		} else {
-			str = "false"
+			str = "False"
 		}
 	}
 

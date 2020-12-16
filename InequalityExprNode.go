@@ -1,19 +1,30 @@
 package main
 
+import "log"
+
 type InequalityExprNode struct {
 	operator TokenType
-	element1 int
-	element2 int
+	element1 IExpression
+	element2 IExpression
 }
 
 func (node InequalityExprNode) Evaluate()interface{} {
-	if node.operator == GREATER_THAN {
-		return node.element1 > node.element2
-	} else if node.operator == LESS_THAN {
-		return node.element1 < node.element2
+	var v1, v2 int
+	if val1,ok := node.element1.Evaluate().(int) ; ! ok{
+		log.Fatal(TypeMismatchError("number",val1))
+	} else if val2,ok := node.element2.Evaluate().(int) ; ! ok {
+		log.Fatal(TypeMismatchError("number",val2))
+	} else {
+		v1 = val1
+		v2 = val2
 	}
 
-	return node.element2 == node.element1
+	if node.operator == GREATER_THAN {
+		return v1 > v2
+	} else if node.operator == LESS_THAN {
+		return v1 < v2
+	}
+	return v1 == v2
 }
 
 func (node InequalityExprNode) GetType()ExpressionType {
@@ -22,23 +33,26 @@ func (node InequalityExprNode) GetType()ExpressionType {
 
 type AndOrExprNode struct {
 	operator TokenType
-	elements []bool
+	elements []IExpression
 }
 
-func hasFalse(elements []bool)bool {
-
-	for _, v := range elements {
-		if !v {
+func hasFalse(elements []IExpression)bool {
+	for _, expr := range elements {
+		if val, ok := expr.Evaluate().(bool) ; ok && !val{
 			return true
+		} else if !ok {
+			log.Fatal(TypeMismatchError("bool", val))
 		}
 	}
 	return false
 }
 
-func hasTrue(elements []bool)bool {
-	for _, v := range elements {
-		if v {
+func hasTrue(elements []IExpression)bool {
+	for _, expr := range elements {
+		if val, ok := expr.Evaluate().(bool) ; ok && val {
 			return true
+		} else if ! ok {
+			log.Fatal(TypeMismatchError("bool",val))
 		}
 	}
 	return false
