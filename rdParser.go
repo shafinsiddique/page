@@ -46,6 +46,8 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 				node = parseInequality(tokens ,curIndex)
 			} else if nextToken.TokenType == AND || nextToken.TokenType == OR {
 				node = parseAndOr(tokens, curIndex)
+			} else if nextToken.TokenType == IF {
+				node = parseIf(tokens, curIndex)
 			}
 		} else {
 			log.Fatal(UNCLOSED_PARENTHESIS)
@@ -61,6 +63,14 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 		log.Fatal(UNEXPECTED_TOKEN)
 	}
 	return node
+}
+
+func parseIf(tokens[]*Token, curIndex *int)IExpression {
+	*curIndex += 1
+	args := getAllArguments(tokens, curIndex)
+	checkIfCorrectArguments(3, len(args))
+	*curIndex += 1
+	return IfExprNode{condition: args[0], thenExp: args[1], elseExp: args[2]}
 }
 
 func getAllArguments(tokens[]*Token, curIndex *int)[]IExpression {
