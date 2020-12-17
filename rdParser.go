@@ -135,6 +135,8 @@ func parseFunctionCall(tokens[]*Token, curIndex *int, function *FunctionDescript
 				for _, t := range argsArray[val] {
 					newTokens = append(newTokens, t)
 				}
+			} else {
+				newTokens = append(newTokens, v)
 			}
 		} else {
 			newTokens = append(newTokens, v)
