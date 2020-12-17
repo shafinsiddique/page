@@ -23,6 +23,8 @@ var FUNCTION_NAME_REQUIRED = errors.New("Syntax Error : function name required i
 
 var ONLY_SYMBOLS_ALLOWED = errors.New("Parsing Error :  only symbols allowed")
 
+var ARGS_LENGTH_MISMATCH = errors.New("Parsing Error : incorrect number of function arguments")
+
 var FUNCTION_NO_BODY = errors.New("Syntax Error : function body not found.")
 func TypeMismatchErrorNumber(actual interface{}) error {
 	valType := reflect.TypeOf(actual).String()

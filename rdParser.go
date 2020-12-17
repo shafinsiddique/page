@@ -54,7 +54,7 @@ func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 				addNewFunction(fds, tokens, curIndex)
 			} else if nextToken.TokenType == SYMBOL {
 				if function, ok := fds[nextToken.Literal] ; ok {
-					node = parseFunctionCall(tokens, curIndex, function)
+					node = parseFunctionCall(tokens, curIndex, function, fds)
 				}
 			}
 		} else {
@@ -73,10 +73,65 @@ func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 	return node
 }
 
+func getArgsArray(tokens[]*Token, curIndex *int)[][]*Token {
+	args := [][]*Token{}
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		tokenArr := []*Token{tokens[*curIndex]}
+		if tokens[*curIndex].TokenType == LEFT_PAREN {
+			*curIndex += 1
+			for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+				tokenArr = append(tokenArr, tokens[*curIndex])
+				*curIndex += 1
+			}
 
-func parseFunctionCall(tokens[]*Token, curIndex *int, function *FunctionDescription)IExpression {
-	
+			if *curIndex == len(tokens){
+				log.Fatal(UNCLOSED_PARENTHESIS)
+			}
+
+			tokenArr = append(tokenArr, tokens[*curIndex])
+			*curIndex += 1
+
+		}  else {
+			*curIndex += 1
+		}
+
+		args = append(args, tokenArr)
+	}
+
+	if *curIndex == len(tokens){
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	*curIndex += 1
+	return args
 }
+
+func parseFunctionCall(tokens[]*Token, curIndex *int, function *FunctionDescription, fds map[string]*FunctionDescription)IExpression {
+	*curIndex +=1
+	argsArray := getArgsArray(tokens,curIndex)
+	if len(argsArray) < len(function.args) {
+		log.Fatal(TOO_FEW_ARGUMENTS)
+	} else if len(argsArray) > len(function.args){
+		log.Fatal(TOO_MANY_ARGUMENTS)
+	}
+
+	newTokens := []*Token{}
+	for _, v := range function.tokens {
+		if v.TokenType == SYMBOL  {
+			if val, ok := function.args[v.Literal] ; ok {
+				for _, t := range argsArray[val] {
+					newTokens = append(newTokens, t)
+				}
+			}
+		} else {
+			newTokens = append(newTokens, v)
+		}
+	}
+	index := 0
+	return parseToken(newTokens, &index, fds)
+}
+
+
 func addNewFunction(fds map[string]*FunctionDescription, tokens[]*Token, curIndex *int) {
 	args := []*Token{}
 	*curIndex += 1
