@@ -52,6 +52,8 @@ func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 				node = parseIf(tokens, curIndex, fds)
 			} else if nextToken.TokenType == DEFINE {
 				addNewFunction(fds, tokens, curIndex)
+			} else if nextToken.TokenType == MOD {
+				node = parseBinaryExpr(tokens, curIndex, fds)
 			} else if nextToken.TokenType == SYMBOL {
 				if function, ok := fds[nextToken.Literal] ; ok {
 					node = parseFunctionCall(tokens, curIndex, function, fds)
@@ -73,6 +75,14 @@ func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 	return node
 }
 
+func parseBinaryExpr(tokens[]*Token, curIndex *int, fds map[string]*FunctionDescription)IExpression {
+	curNode := tokens[*curIndex]
+	*curIndex += 1
+	args := getAllArguments(tokens, curIndex, fds)
+	checkIfCorrectArguments(2, len(args))
+	*curIndex += 1
+	return BinaryExprNodes{operator: curNode.TokenType, first: args[0], second: args[1]}
+}
 func getArgsArray(tokens[]*Token, curIndex *int)[][]*Token {
 	args := [][]*Token{}
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {

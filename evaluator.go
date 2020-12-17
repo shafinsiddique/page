@@ -6,22 +6,24 @@ import (
 )
 
 type Evaluator struct {
+	lastLength int
 }
 
 func NewEvaluator() *Evaluator {
 	return &Evaluator{}
 }
 
-func (evaluator Evaluator) Evaluate(ast IAST) {
+func (evaluator *Evaluator) Evaluate(ast IAST) {
 	for _, expr := range ast.GetExpressions() {
 		evaluateExpr(expr)
 	}
 }
 
-func (evaluator Evaluator) EvaluateLast(ast IAST) {
+func (evaluator *Evaluator) EvaluateLast(ast IAST) {
 	expressions := ast.GetExpressions()
-	if len(expressions) > 0 {
+	if len(expressions) > evaluator.lastLength  {
 		evaluateExpr(expressions[len(expressions)-1])
+		evaluator.lastLength += 1
 	}
 }
 
