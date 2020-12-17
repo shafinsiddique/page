@@ -83,37 +83,40 @@ func parseBinaryExpr(tokens[]*Token, curIndex *int, fds map[string]*FunctionDesc
 	*curIndex += 1
 	return BinaryExprNodes{operator: curNode.TokenType, first: args[0], second: args[1]}
 }
-func getArgsArray(tokens[]*Token, curIndex *int)[][]*Token {
-	args := [][]*Token{}
-	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-		tokenArr := []*Token{tokens[*curIndex]}
-		if tokens[*curIndex].TokenType == LEFT_PAREN {
-			*curIndex += 1
-			for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-				tokenArr = append(tokenArr, tokens[*curIndex])
-				*curIndex += 1
-			}
-
-			if *curIndex == len(tokens){
-				log.Fatal(UNCLOSED_PARENTHESIS)
-			}
-
-			tokenArr = append(tokenArr, tokens[*curIndex])
-			*curIndex += 1
-
-		}  else {
-			*curIndex += 1
-		}
-
-		args = append(args, tokenArr)
+func getArgs(tokens[]*Token, curIndex *int) []*Token {
+	if *curIndex >= len(tokens) {
+		log.Fatal(MISSING_TOKENS)
 	}
 
-	if *curIndex == len(tokens){
-		log.Fatal(UNCLOSED_PARENTHESIS)
+	if tokens[*curIndex].TokenType == RIGHT_PAREN {
+		log.Fatal(UNEXPECTED_TOKEN)
 	}
-
+	curToken := tokens[*curIndex]
+	args := []*Token{curToken}
 	*curIndex += 1
+
+	if curToken.TokenType == LEFT_PAREN {
+		for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+			for _, v := range getArgs(tokens, curIndex) {
+				args = append(args, v)
+			}
+		}
+		checkForUnclosedParens(curIndex, tokens)
+		args = append(args, tokens[*curIndex])
+		*curIndex += 1
+	}
+
 	return args
+}
+func getArgsArray(tokens[]*Token, curIndex *int)[][]*Token {
+	arr := [][]*Token{}
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		arr = append(arr, getArgs(tokens, curIndex))
+	}
+
+	checkForUnclosedParens(curIndex, tokens)
+	*curIndex += 1
+	return arr
 }
 
 func parseFunctionCall(tokens[]*Token, curIndex *int, function *FunctionDescription, fds map[string]*FunctionDescription)IExpression {
@@ -149,7 +152,7 @@ func checkForUnclosedParens(curIndex *int, tokens[]*Token) {
 		log.Fatal(UNCLOSED_PARENTHESIS)
 	}
 }
-func getFuncBodyTokens(tokens[]*Token, curIndex *int) []*Token {
+func getTokensArray(tokens[]*Token, curIndex *int) []*Token {
 	bodyTokens := []*Token{}
 	if *curIndex >= len(tokens) {
 		log.Fatal(MISSING_TOKENS)
@@ -163,7 +166,7 @@ func getFuncBodyTokens(tokens[]*Token, curIndex *int) []*Token {
 	*curIndex += 1
 	if curToken.TokenType == LEFT_PAREN {
 		for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-			for _, v := range getFuncBodyTokens(tokens, curIndex) {
+			for _, v := range getTokensArray(tokens, curIndex) {
 				bodyTokens = append(bodyTokens, v)
 			}
 		}
@@ -185,7 +188,7 @@ func addNewFunction(fds map[string]*FunctionDescription, tokens[]*Token, curInde
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
 		if tokens[*curIndex].TokenType != SYMBOL {
-			log.Fatal()
+			log.Fatal(ONLY_SYMBOLS_ALLOWED)
 		}
 		args = append(args, tokens[*curIndex])
 		*curIndex += 1
@@ -208,9 +211,10 @@ func addNewFunction(fds map[string]*FunctionDescription, tokens[]*Token, curInde
 		log.Fatal(FUNCTION_NO_BODY)
 	}
 
-	bodyTokens := getFuncBodyTokens(tokens, curIndex)
-	checkForUnclosedParens(curIndex, tokens)
-	*curIndex += 1
+	bodyTokens := getTokensArray(tokens, curIndex)
+	checkForUnclosedParens(curIndex, tokens) // checking closing parenthesis for the (define ) portion.
+	// the outermost part of the function definition i guess we can call it.
+	*curIndex += 1 // incrememing frmo that so we're out of this portion.
 	fds[name] = NewFunctionDescription(name, params, bodyTokens)
 }
 
