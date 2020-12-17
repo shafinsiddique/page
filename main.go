@@ -15,6 +15,7 @@ func startRepl(in io.Reader, out io.Writer) {
 	tokenizer := NewBasicScanner()
 	ast := NewBasicAST()
 	parser := NewRDParser()
+	fds := map[string]*FunctionDescription{}
 	evaluator := NewEvaluator()
 	prompt := "> "
 	scanner := bufio.NewScanner(in)
@@ -28,7 +29,7 @@ func startRepl(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		tokens := tokenizer.GetTokens(line)
-		parser.Parse(ast, tokens)
+		parser.Parse(ast, tokens, fds)
 		evaluator.EvaluateLast(ast)
 	}
 }

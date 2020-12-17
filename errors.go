@@ -17,6 +17,13 @@ var FIRST_ON_EMPTY = errors.New("Runtime Error : called first on empty list")
 
 var UNEXPECTED_TOKEN = errors.New("Parsing Error : unexpected token")
 
+var FUNCTION_ARGS_ERROR = errors.New("Parsing Error : expected function arguments list.")
+
+var FUNCTION_NAME_REQUIRED = errors.New("Syntax Error : function name required in define.")
+
+var ONLY_SYMBOLS_ALLOWED = errors.New("Parsing Error :  only symbols allowed")
+
+var FUNCTION_NO_BODY = errors.New("Syntax Error : function body not found.")
 func TypeMismatchErrorNumber(actual interface{}) error {
 	valType := reflect.TypeOf(actual).String()
 	return errors.New("Type Error : Expected number got " + valType + " instead")

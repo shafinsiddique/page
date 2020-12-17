@@ -11,10 +11,12 @@ func NewRDParser() IParser {
 	return RDParser{}
 }
 
-func (p RDParser) Parse(ast IAST, tokens []*Token) {
+func (p RDParser) Parse(ast IAST, tokens []*Token, fds map[string]*FunctionDescription) {
 	index := 0
 	for index < len(tokens) {
-		ast.AddExpression(parseToken(tokens, &index))
+		if node := parseToken(tokens, &index, fds) ; node != nil {
+			ast.AddExpression(node)
+		}
 	}
 }
 
@@ -27,27 +29,33 @@ func peek(tokens []*Token, index *int) *Token {
 	return token
 }
 
-func parseToken(tokens []*Token, curIndex *int) IExpression {
+func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
 	index := *curIndex
 	var node IExpression
 	if tokens[index].TokenType == LEFT_PAREN {
 		if nextToken := peek(tokens, curIndex); nextToken != nil {
 			if nextToken.TokenType == PLUS || nextToken.TokenType == MINUS ||
 				nextToken.TokenType == DIVIDE || nextToken.TokenType == TIMES {
-				node = parseMathOperator(tokens, curIndex)
+				node = parseMathOperator(tokens, curIndex, fds)
 			} else if nextToken.TokenType == LIST {
-				node = parseList(tokens, curIndex)
+				node = parseList(tokens, curIndex, fds)
 			} else if nextToken.TokenType == CONS {
-				node = parseCons(tokens, curIndex)
+				node = parseCons(tokens, curIndex, fds)
 			} else if nextToken.TokenType == FIRST {
-				node = parseFirst(tokens, curIndex)
+				node = parseFirst(tokens, curIndex, fds)
 			} else if nextToken.TokenType == GREATER_THAN || nextToken.TokenType == LESS_THAN ||
 				nextToken.TokenType == EQUAL  || nextToken.TokenType == GREATER_THAN_EQUAL || nextToken.TokenType == LESS_THAN_EQUAL{
-				node = parseInequality(tokens ,curIndex)
+				node = parseInequality(tokens ,curIndex, fds)
 			} else if nextToken.TokenType == AND || nextToken.TokenType == OR {
-				node = parseAndOr(tokens, curIndex)
+				node = parseAndOr(tokens, curIndex, fds)
 			} else if nextToken.TokenType == IF {
-				node = parseIf(tokens, curIndex)
+				node = parseIf(tokens, curIndex, fds)
+			} else if nextToken.TokenType == DEFINE {
+				addNewFunction(fds, tokens, curIndex)
+			} else if nextToken.TokenType == SYMBOL {
+				if function, ok := fds[nextToken.Literal] ; ok {
+					node = parseFunctionCall(tokens, curIndex, function)
+				}
 			}
 		} else {
 			log.Fatal(UNCLOSED_PARENTHESIS)
@@ -65,18 +73,70 @@ func parseToken(tokens []*Token, curIndex *int) IExpression {
 	return node
 }
 
-func parseIf(tokens[]*Token, curIndex *int)IExpression {
+
+func parseFunctionCall(tokens[]*Token, curIndex *int, function *FunctionDescription)IExpression {
+	
+}
+func addNewFunction(fds map[string]*FunctionDescription, tokens[]*Token, curIndex *int) {
+	args := []*Token{}
 	*curIndex += 1
-	args := getAllArguments(tokens, curIndex)
+	if *curIndex < len(tokens) && tokens[*curIndex].TokenType != LEFT_PAREN {
+		log.Fatal(FUNCTION_ARGS_ERROR)
+	}
+	*curIndex += 1
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		if tokens[*curIndex].TokenType != SYMBOL {
+			log.Fatal()
+		}
+		args = append(args, tokens[*curIndex])
+		*curIndex += 1
+	}
+
+	if *curIndex == len(tokens) {
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	if len(args) == 0 {
+		log.Fatal(FUNCTION_NAME_REQUIRED)
+	}
+	name := args[0].Literal
+	params := []string{}
+	for _, v := range args[1:] {
+		params = append(params, v.Literal)
+	}
+
+	*curIndex += 1
+
+	if *curIndex < len(tokens) && tokens[*curIndex].TokenType != LEFT_PAREN{
+		log.Fatal(FUNCTION_NO_BODY)
+	}
+	bodyTokens := []*Token{}
+	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+		bodyTokens = append(bodyTokens, tokens[*curIndex])
+		*curIndex += 1
+	}
+
+	if *curIndex == len(tokens) || *curIndex + 1 == len(tokens) || tokens[*curIndex+1].TokenType != RIGHT_PAREN{
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+
+	bodyTokens = append(bodyTokens, tokens[*curIndex])
+	*curIndex+=2
+	fds[name] = NewFunctionDescription(name, params, bodyTokens)
+}
+
+func parseIf(tokens[]*Token, curIndex *int, fds map[string]*FunctionDescription)IExpression {
+	*curIndex += 1
+	args := getAllArguments(tokens, curIndex, fds)
 	checkIfCorrectArguments(3, len(args))
 	*curIndex += 1
 	return IfExprNode{condition: args[0], thenExp: args[1], elseExp: args[2]}
 }
 
-func getAllArguments(tokens[]*Token, curIndex *int)[]IExpression {
+func getAllArguments(tokens[]*Token, curIndex *int, fds map[string]*FunctionDescription)[]IExpression {
 	elements := []IExpression{}
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN{
-		elements = append(elements, parseToken(tokens, curIndex))
+		elements = append(elements, parseToken(tokens, curIndex, fds))
 	}
 	if *curIndex == len(tokens) {
 		log.Fatal(UNCLOSED_PARENTHESIS)
@@ -85,10 +145,10 @@ func getAllArguments(tokens[]*Token, curIndex *int)[]IExpression {
 	return elements
 
 }
-func parseAndOr(tokens []*Token, curIndex *int)IExpression {
+func parseAndOr(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription)IExpression {
 	curToken := tokens[*curIndex]
 	*curIndex += 1
-	elements := getAllArguments(tokens, curIndex)
+	elements := getAllArguments(tokens, curIndex, fds)
 	if len(elements) < 2 {
 		log.Fatal(TOO_FEW_ARGUMENTS)
 	}
@@ -105,13 +165,13 @@ func checkIfCorrectArguments(expected int, actual int) {
 	}
 }
 
-func parseInequality(tokens []*Token, curIndex *int)IExpression {
+func parseInequality(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription)IExpression {
 	elements := []IExpression{}
 	curToken := tokens[*curIndex]
 	*curIndex += 1
 
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-		elements = append(elements, parseToken(tokens, curIndex))
+		elements = append(elements, parseToken(tokens, curIndex, fds))
 	}
 
 	if *curIndex == len(tokens) {
@@ -123,11 +183,11 @@ func parseInequality(tokens []*Token, curIndex *int)IExpression {
 	return InequalityExprNode{element1: elements[0], element2: elements[1], operator: curToken.TokenType}
 }
 
-func parseFirst(tokens []*Token, curIndex *int) IExpression {
+func parseFirst(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
 	elements := []IExpression{}
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-		elements = append(elements, parseToken(tokens, curIndex))
+		elements = append(elements, parseToken(tokens, curIndex, fds))
 	}
 
 	if *curIndex == len(tokens) {
@@ -149,11 +209,11 @@ func parseFirst(tokens []*Token, curIndex *int) IExpression {
 	return FirstExpressionNode{list:elements[0].Evaluate().([]interface{})}
 
 }
-func parseCons(tokens []*Token, curIndex *int) IExpression {
+func parseCons(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
 	elements := []IExpression{}
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-		elements = append(elements, parseToken(tokens, curIndex))
+		elements = append(elements, parseToken(tokens, curIndex, fds))
 	}
 
 	if *curIndex == len(tokens) {
@@ -172,11 +232,11 @@ func parseCons(tokens []*Token, curIndex *int) IExpression {
 	*curIndex += 1
 	return ConsExpressionNode{element: elements[0].Evaluate(), list:elements[1].Evaluate().([]interface{})}
 }
-func parseList(tokens []*Token, curIndex *int) IExpression {
+func parseList(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
 	elements := []IExpression{}
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-		elements = append(elements, parseToken(tokens, curIndex))
+		elements = append(elements, parseToken(tokens, curIndex, fds))
 	}
 	if *curIndex == len(tokens) {
 		// no right paren found.
@@ -200,12 +260,12 @@ func parseNumber(tokens []*Token, curIndex *int) IExpression {
 	return node
 }
 
-func parseMathOperator(tokens []*Token, curIndex *int) IExpression {
+func parseMathOperator(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
 	operator := tokens[*curIndex].TokenType
 	var children []IExpression
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-		children = append(children, parseToken(tokens, curIndex))
+		children = append(children, parseToken(tokens, curIndex, fds))
 	}
 	if *curIndex == len(tokens) {
 		// this means we went to the end of the tokens without seeing a closing parenthesis.

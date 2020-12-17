@@ -44,13 +44,13 @@ func (scanner BasicScanner) GetTokens(strScan string) []*Token{
 			token = scanStringToken(&str, curIndex)
 			incremented = true
 		} else {
-			cache := *curIndex
 			word := tryGetWord(&str, curIndex)
 			if t, ok := RESERVED_WORD_TOKENS[word] ; ok {
 				token = &Token{TokenType: t.TokenType}
 				incremented = true
-			} else {
-				*curIndex = cache
+			} else if word != "" {
+				token = &Token{TokenType: SYMBOL, Literal: word}
+				incremented = true
 			}
 		}
 
