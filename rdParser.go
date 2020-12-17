@@ -141,11 +141,45 @@ func parseFunctionCall(tokens[]*Token, curIndex *int, function *FunctionDescript
 	return parseToken(newTokens, &index, fds)
 }
 
+func checkForUnclosedParens(curIndex *int, tokens[]*Token) {
+	if *curIndex == len(tokens) {
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+	if tokens[*curIndex].TokenType != RIGHT_PAREN {
+		log.Fatal(UNCLOSED_PARENTHESIS)
+	}
+}
+func getFuncBodyTokens(tokens[]*Token, curIndex *int) []*Token {
+	bodyTokens := []*Token{}
+	if *curIndex >= len(tokens) {
+		log.Fatal(MISSING_TOKENS)
+	}
+
+	if tokens[*curIndex].TokenType == RIGHT_PAREN {
+		log.Fatal(UNEXPECTED_TOKEN)
+	}
+	curToken := tokens[*curIndex]
+	bodyTokens = append(bodyTokens, curToken)
+	*curIndex += 1
+	if curToken.TokenType == LEFT_PAREN {
+		for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
+			for _, v := range getFuncBodyTokens(tokens, curIndex) {
+				bodyTokens = append(bodyTokens, v)
+			}
+		}
+
+		checkForUnclosedParens(curIndex, tokens)
+		bodyTokens = append(bodyTokens, tokens[*curIndex]) // if code reaches here, it means theres a right paren.
+		*curIndex += 1 // move up the right paren for this left paren.
+	}
+
+	return bodyTokens
+}
 
 func addNewFunction(fds map[string]*FunctionDescription, tokens[]*Token, curIndex *int) {
 	args := []*Token{}
 	*curIndex += 1
-	if *curIndex < len(tokens) && tokens[*curIndex].TokenType != LEFT_PAREN {
+	if *curIndex >= len(tokens) || tokens[*curIndex].TokenType != LEFT_PAREN {
 		log.Fatal(FUNCTION_ARGS_ERROR)
 	}
 	*curIndex += 1
@@ -169,24 +203,14 @@ func addNewFunction(fds map[string]*FunctionDescription, tokens[]*Token, curInde
 	for _, v := range args[1:] {
 		params = append(params, v.Literal)
 	}
-
 	*curIndex += 1
-
-	if *curIndex < len(tokens) && tokens[*curIndex].TokenType != LEFT_PAREN{
+	if *curIndex == len(tokens) {
 		log.Fatal(FUNCTION_NO_BODY)
 	}
-	bodyTokens := []*Token{}
-	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
-		bodyTokens = append(bodyTokens, tokens[*curIndex])
-		*curIndex += 1
-	}
 
-	if *curIndex == len(tokens) || *curIndex + 1 == len(tokens) || tokens[*curIndex+1].TokenType != RIGHT_PAREN{
-		log.Fatal(UNCLOSED_PARENTHESIS)
-	}
-
-	bodyTokens = append(bodyTokens, tokens[*curIndex])
-	*curIndex+=2
+	bodyTokens := getFuncBodyTokens(tokens, curIndex)
+	checkForUnclosedParens(curIndex, tokens)
+	*curIndex += 1
 	fds[name] = NewFunctionDescription(name, params, bodyTokens)
 }
 

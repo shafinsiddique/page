@@ -26,6 +26,9 @@ var ONLY_SYMBOLS_ALLOWED = errors.New("Parsing Error :  only symbols allowed")
 var ARGS_LENGTH_MISMATCH = errors.New("Parsing Error : incorrect number of function arguments")
 
 var FUNCTION_NO_BODY = errors.New("Syntax Error : function body not found.")
+
+var MISSING_TOKENS = errors.New("Parsing Error : missing tokens")
+
 func TypeMismatchErrorNumber(actual interface{}) error {
 	valType := reflect.TypeOf(actual).String()
 	return errors.New("Type Error : Expected number got " + valType + " instead")
