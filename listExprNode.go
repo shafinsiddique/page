@@ -37,17 +37,30 @@ func (node ConsExpressionNode) GetType()ExpressionType {
 	return CONS_EXPR
 }
 
-type FirstExpressionNode struct {
-	list []interface{}
+type CarCdrExpressionNode struct {
+	tokenType TokenType
+	list      IExpression
 }
 
-func (node FirstExpressionNode) Evaluate()interface{} {
-	if len(node.list) < 1 {
-		log.Fatal(FIRST_ON_EMPTY)
+func (node CarCdrExpressionNode) Evaluate()interface{} {
+	var result interface{}
+	if val, ok := node.list.Evaluate().([]interface{}); ok {
+		if len(val) > 0 {
+			if node.tokenType == CDR  {
+				result = val[1:]
+			} else {
+				result = val[0]
+			}
+		} else {
+			log.Fatal(LIST_FUNCTION_ON_EMPTY)
+		}
+	} else {
+		log.Fatal(TypeMismatchError("list", val))
 	}
-	return node.list[0]
+
+	return result
 }
 
-func (node FirstExpressionNode) GetType() ExpressionType {
+func (node CarCdrExpressionNode) GetType() ExpressionType {
 	return FIRST_EXPR
 }

@@ -41,8 +41,8 @@ func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 				node = parseList(tokens, curIndex, fds)
 			} else if nextToken.TokenType == CONS {
 				node = parseCons(tokens, curIndex, fds)
-			} else if nextToken.TokenType == FIRST {
-				node = parseFirst(tokens, curIndex, fds)
+			} else if nextToken.TokenType == FIRST || nextToken.TokenType == CDR {
+				node = parseCarCdr(tokens, curIndex, fds)
 			} else if nextToken.TokenType == GREATER_THAN || nextToken.TokenType == LESS_THAN ||
 				nextToken.TokenType == EQUAL  || nextToken.TokenType == GREATER_THAN_EQUAL || nextToken.TokenType == LESS_THAN_EQUAL{
 				node = parseInequality(tokens ,curIndex, fds)
@@ -285,7 +285,8 @@ func parseInequality(tokens []*Token, curIndex *int, fds map[string]*FunctionDes
 	return InequalityExprNode{element1: elements[0], element2: elements[1], operator: curToken.TokenType}
 }
 
-func parseFirst(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
+func parseCarCdr(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
+	curToken := tokens[*curIndex]
 	elements := []IExpression{}
 	*curIndex += 1
 	for *curIndex < len(tokens) && tokens[*curIndex].TokenType != RIGHT_PAREN {
@@ -302,13 +303,8 @@ func parseFirst(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 		log.Fatal(TOO_MANY_ARGUMENTS)
 	}
 
-	if elements[0].GetType() != LIST_EXPR {
-		log.Fatal(TypeMismatcErrorList(elements[0].GetType()))
-	}
-
 	*curIndex += 1
-
-	return FirstExpressionNode{list:elements[0].Evaluate().([]interface{})}
+	return CarCdrExpressionNode{list: elements[0], tokenType: curToken.TokenType}
 
 }
 

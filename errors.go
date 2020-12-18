@@ -29,6 +29,7 @@ var FUNCTION_NO_BODY = errors.New("Syntax Error : function body not found.")
 
 var MISSING_TOKENS = errors.New("Parsing Error : missing tokens")
 
+var LIST_FUNCTION_ON_EMPTY = errors.New("Runtime Error : called list function on empty list.")
 func TypeMismatchErrorNumber(actual interface{}) error {
 	valType := reflect.TypeOf(actual).String()
 	return errors.New("Type Error : Expected number got " + valType + " instead")
