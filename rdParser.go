@@ -143,7 +143,14 @@ func parseFunctionCall(tokens[]*Token, curIndex *int, function *FunctionDescript
 		}
 	}
 	index := 0
-	return parseToken(newTokens, &index, fds)
+	var expression IExpression
+	if function.inParsing {
+		return RecursiveCallNode{tokens: newTokens, fds: fds}
+	}
+	function.inParsing = true /// otherwise set in parsing to true.
+	expression = parseToken(newTokens, &index, fds)
+	function.inParsing = false
+	return expression
 }
 
 func checkForUnclosedParens(curIndex *int, tokens[]*Token) {
@@ -304,6 +311,7 @@ func parseFirst(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 	return FirstExpressionNode{list:elements[0].Evaluate().([]interface{})}
 
 }
+
 func parseCons(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
 	elements := []IExpression{}
 	*curIndex += 1
@@ -327,6 +335,7 @@ func parseCons(tokens []*Token, curIndex *int, fds map[string]*FunctionDescripti
 	*curIndex += 1
 	return ConsExpressionNode{element: elements[0].Evaluate(), list:elements[1].Evaluate().([]interface{})}
 }
+
 func parseList(tokens []*Token, curIndex *int, fds map[string]*FunctionDescription) IExpression {
 	elements := []IExpression{}
 	*curIndex += 1
