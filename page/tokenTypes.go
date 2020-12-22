@@ -29,6 +29,7 @@ const (
 	MOD = "MOD"
 	CDR = "CDR"
 	LENGTH = "LENGTH"
+	EQUALS = "EQUALS"
 
 )
 

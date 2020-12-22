@@ -48,6 +48,8 @@ func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 				node = parseInequality(tokens ,curIndex, fds)
 			} else if nextToken.TokenType == LENGTH {
 				node = parseLength(tokens, curIndex, fds)
+			} else if nextToken.TokenType == EQUALS {
+				node = parseEquals(tokens, curIndex, fds)
 			} else if nextToken.TokenType == AND || nextToken.TokenType == OR {
 				node = parseAndOr(tokens, curIndex, fds)
 			} else if nextToken.TokenType == IF {
@@ -75,6 +77,14 @@ func parseToken(tokens []*Token, curIndex *int, fds map[string]*FunctionDescript
 		log.Fatal(UNEXPECTED_TOKEN)
 	}
 	return node
+}
+
+func parseEquals(tokens[]*Token, curIndex *int, fds map[string]*FunctionDescription)IExpression {
+	*curIndex += 1
+	args := getAllArguments(tokens, curIndex, fds)
+	checkIfCorrectArguments(2, len(args))
+	*curIndex += 1
+	return StringEqualsExprNode{strs: args}
 }
 
 func parseLength(tokens[]*Token, curIndex *int, fds map[string]*FunctionDescription)IExpression {

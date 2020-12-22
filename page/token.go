@@ -44,4 +44,5 @@ var RESERVED_WORD_TOKENS = map[string]*Token {
 	"define":{TokenType: DEFINE},
 	"cdr":{TokenType: CDR},
 	"length":{TokenType: LENGTH},
+	"equals":{TokenType: EQUALS },
 }
